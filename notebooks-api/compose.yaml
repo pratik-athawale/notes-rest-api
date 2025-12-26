@@ -1,0 +1,11 @@
+name: notebooks-api
+
+services:
+  server:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - 3000:80
+    environment:
+      - PORT=80
