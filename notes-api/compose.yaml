@@ -1,7 +1,7 @@
-name: notes-api
+name: notes_api
 
 services:
-  server:
+  ns_server:
     build: 
       context: .
       target: development
@@ -9,13 +9,13 @@ services:
       - 3001:80
     environment:
       - PORT=80
-      - DB_URL=mongodb://${NOTES_DB_USER}:$NOTES_DB_PASSWORD@db/$NOTES_DB_NAME
+      - DB_URL=mongodb://${NOTES_DB_USER}:$NOTES_DB_PASSWORD@ns_db/$NOTES_DB_NAME
     networks:
-      - ns-network
+      - ns_network
     depends_on:
-      - db
+      - ns_db
 
-  db:
+  ns_db:
     image: mongodb/mongodb-community-server:7.0-ubuntu2204
     env_file:
       - .env
@@ -25,13 +25,13 @@ services:
         target: /docker-entrypoint-initdb.d/mongo-init.js
         read_only: true
       - type: volume
-        source: ns-volume
+        source: ns_volume
         target: /data/db
     networks:
-      - ns-network
+      - ns_network
 
 volumes:
-  ns-volume:
+  ns_volume:
 
 networks:
-  ns-network:
+  ns_network:

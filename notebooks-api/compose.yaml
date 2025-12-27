@@ -1,7 +1,7 @@
-name: notebooks-api
+name: notebooks_api
 
 services:
-  server:
+  nb_server:
     build: 
       context: .
       target: development
@@ -9,13 +9,13 @@ services:
       - 3000:80
     environment:
       - PORT=80
-      - DB_URL=mongodb://${NOTEBOOKS_DB_USER}:$NOTEBOOKS_DB_PASSWORD@db/$NOTEBOOKS_DB_NAME
+      - DB_URL=mongodb://${NOTEBOOKS_DB_USER}:$NOTEBOOKS_DB_PASSWORD@nb_db/$NOTEBOOKS_DB_NAME
     networks:
-      - nb-network
+      - nb_network
     depends_on:
-      - db
+      - nb_db
 
-  db:
+  nb_db:
     image: mongodb/mongodb-community-server:7.0-ubuntu2204
     env_file:
       - .env
@@ -25,13 +25,13 @@ services:
         target: /docker-entrypoint-initdb.d/mongo-init.js
         read_only: true
       - type: volume
-        source: nb-volume
+        source: nb_volume
         target: /data/db
     networks:
-      - nb-network
+      - nb_network
 
 volumes:
-  nb-volume:
+  nb_volume:
 
 networks:
-  nb-network:
+  nb_network:
