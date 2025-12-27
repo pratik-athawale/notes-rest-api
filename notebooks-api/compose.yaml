@@ -9,3 +9,29 @@ services:
       - 3000:80
     environment:
       - PORT=80
+      - DB_URL=mongodb://${NOTEBOOKS_DB_USER}:$NOTEBOOKS_DB_PASSWORD@db/$NOTEBOOKS_DB_NAME
+    networks:
+      - nb-network
+    depends_on:
+      - db
+
+  db:
+    image: mongodb/mongodb-community-server:7.0-ubuntu2204
+    env_file:
+      - .env
+    volumes:
+      - type: bind
+        source: ./db-config/mongo-init.js
+        target: /docker-entrypoint-initdb.d/mongo-init.js
+        read_only: true
+      - type: volume
+        source: nb-volume
+        target: /data/db
+    networks:
+      - nb-network
+
+volumes:
+  nb-volume:
+
+networks:
+  nb-network:
