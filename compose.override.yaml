@@ -1,0 +1,9 @@
+services:
+  nb_server:
+    networks:
+      - notes_app_servers_net
+
+  ns_server:
+    networks:
+      - notes_app_servers_net
+      
