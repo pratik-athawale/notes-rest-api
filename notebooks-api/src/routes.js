@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { Notebook } = require('./Notebook');
+const { Notebook } = require('./notebook');
 const notebooksRouter = express.Router();
 
 const validateObjectId = (req, res, next) => {

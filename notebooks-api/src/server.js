@@ -1,11 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const notebooksRouter = require('./routes');
+const { notebooksRouter } = require('./routes');
 
 const app = express();
 
 const port = process.env.PORT;
 const dbUrl = process.env.DB_URL;
+
+app.use(express.json());
 
 console.log('Connecting to DB!');
 console.log('dburl', dbUrl);
@@ -23,3 +25,7 @@ mongoose.connect(process.env.DB_URL)
 })
 
 app.use('/api/notebooks', notebooksRouter);
+
+// app.get('/api/notebooks', (req, res) => {
+//     res.send('Hello from Notebooks!');
+// });
