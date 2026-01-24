@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { notesRouter } = require('./routes');
 
 const app = express();
+app.use(express.json());
 
 const port = process.env.PORT;
 const dbUrl = process.env.DB_URL;
@@ -20,6 +22,8 @@ mongoose.connect(process.env.DB_URL)
     console.error(err);
 })
 
-app.get('/api/notes', (req, res) => {
-  res.send('Hello from Notes!');
-});
+// app.get('/api/notes', (req, res) => {
+//   res.send('Hello from Notes!');
+// });
+
+app.use('/api/notes', notesRouter);

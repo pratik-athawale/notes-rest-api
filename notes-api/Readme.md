@@ -7,3 +7,5 @@
 4. docker build -t notes-api:dev --target=development
 
 5. docker build -t notes-api:dev --target=production
+
+6. npm i --save-exact axios@1.7.2
