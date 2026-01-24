@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const notebooksRouter = require('./routes');
 
 const app = express();
 
@@ -21,6 +22,4 @@ mongoose.connect(process.env.DB_URL)
     console.error(err);
 })
 
-app.get('/api/notebooks', (req, res) => {
-  res.send('Hello from Notebooks!');
-});
+app.use('/api/notebooks', notebooksRouter);
