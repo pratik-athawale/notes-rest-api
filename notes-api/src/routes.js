@@ -4,6 +4,9 @@ const axios = require('axios');
 const { Note } = require('./note');
 const notesRouter = express.Router();
 
+// 'http://reverse-proxy/api/notebooks'; should work too
+const NOTEBOOKS_API_URL = process.env.NOTEBOOKS_API_URL || 'http://nb_server/api/notebooks';
+
 const validateObjectId = (req, res, next) => {
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ error: 'Invalid note ID' });
@@ -24,24 +27,22 @@ const handleDatabaseOperation = async (operation, res) => {
   }
 };
 
-const validateNotebookId = async (notebookId, res) => {
+const validateNotebookId = async (notebookId) => {
   if (notebookId) {
     if (!mongoose.Types.ObjectId.isValid(notebookId)) {
-      return res.status(400).json({ error: 'Invalid notebookId: Not a valid MongoDB ObjectId' });
+      throw new Error('Invalid notebookId: Not a valid MongoDB ObjectId');
     }
 
     try {
-      const response = await axios.get(`http://nb_server/api/notebooks/${notebookId}`);
+      const response = await axios.get(`${NOTEBOOKS_API_URL}/${notebookId}`);
       if (!response.data) {
-        return res.status(400).json({ error: 'Invalid notebookId: Notebook not found' });
+        throw new Error('Invalid notebookId: Notebook not found');
       }
-      return notebookId;
     } catch (error) {
       console.error('Error validating notebookId:', error.message);
-      return res.status(400).json({ error: 'Invalid notebookId: Notebook not found' });
+      throw new Error('Invalid notebookId: Notebook not found');
     }
   }
-  return undefined;
 };
 
 notesRouter.get('/', async (req, res) => {
@@ -59,12 +60,15 @@ notesRouter.post('/', async (req, res) => {
     return res.status(400).json({ error: 'title and content are required' });
   }
 
-  const validNotebookId = await validateNotebookId(notebookId, res);
-
-  handleDatabaseOperation(() => {
-    const note = new Note({ title, content, validNotebookId });
-    return note.save();
-  }, res, 'Failed to create note');
+  try {
+    await validateNotebookId(notebookId);
+    handleDatabaseOperation(() => {
+      const note = new Note({ title, content, notebookId });
+      return note.save();
+    }, res, 'Failed to create note');
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
 });
 
 notesRouter.put('/:id', validateObjectId, async (req, res) => {
@@ -74,16 +78,19 @@ notesRouter.put('/:id', validateObjectId, async (req, res) => {
     return res.status(400).json({ error: 'title and content are required' });
   }
 
-  const validNotebookId = await validateNotebookId(notebookId, res);
-
-  await handleDatabaseOperation(() => 
-    Note.findByIdAndUpdate(
-      req.params.id,
-      { title, content, validNotebookId },
-      { new: true, runValidators: true }
-    ),
-    res
-  );
+  try {
+    await validateNotebookId(notebookId);
+    await handleDatabaseOperation(() => 
+      Note.findByIdAndUpdate(
+        req.params.id,
+        { title, content, notebookId },
+        { new: true, runValidators: true }
+      ),
+      res
+    );
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
 });
 
 notesRouter.delete('/:id', validateObjectId, async (req, res) => {

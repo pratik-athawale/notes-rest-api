@@ -4,6 +4,8 @@ services:
       - notes_app_servers_net
 
   ns_server:
+    environment:
+      - NOTEBOOKS_API_URL=http://nb_server/api/notebooks
     networks:
       - notes_app_servers_net
       
